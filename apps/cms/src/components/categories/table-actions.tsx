@@ -1,3 +1,9 @@
+import {
+  Delete02Icon,
+  MoreVerticalIcon,
+  PencilEdit02Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
@@ -5,11 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import {
-  DotsThreeVerticalIcon,
-  PencilSimpleLineIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
 import { useState } from "react";
 import { CategoryModal, DeleteCategoryModal } from "./category-modals";
 import type { Category } from "./columns";
@@ -23,22 +24,26 @@ export default function TableActions(props: Category) {
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <Button className="h-8 w-8 p-0" variant="ghost">
+            <Button className="size-8 p-0" variant="ghost">
               <span className="sr-only">Open menu</span>
-              <DotsThreeVerticalIcon />
+              <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
             </Button>
           }
         />
-        <DropdownMenuContent align="end" className="text-muted-foreground">
+        <DropdownMenuContent
+          align="end"
+          className="text-muted-foreground shadow-sm"
+        >
           <DropdownMenuItem onClick={() => setShowUpdateModal(true)}>
-            <PencilSimpleLineIcon className="mr-1.5 size-4" />
+            <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
             <span>Edit</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setShowDeleteModal(true)}
             variant="destructive"
           >
-            <TrashIcon className="mr-1.5 size-4" /> <span>Delete</span>
+            <HugeiconsIcon icon={Delete02Icon} size={16} />
+            <span>Delete</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

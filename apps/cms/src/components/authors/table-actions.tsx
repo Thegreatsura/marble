@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  Delete02Icon,
+  MoreVerticalIcon,
+  PencilEdit02Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
@@ -7,11 +13,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import {
-  DotsThreeVerticalIcon,
-  PencilSimpleLineIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
 import { useState } from "react";
 import type { Author } from "@/types/author";
 import { DeleteAuthorModal } from "./author-modals";
@@ -38,23 +39,26 @@ export function AuthorTableActions({ author }: AuthorTableActionsProps) {
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <Button className="h-8 w-8 p-0" variant="ghost">
+            <Button className="size-8 p-0" variant="ghost">
               <span className="sr-only">Open menu</span>
-              <DotsThreeVerticalIcon />
+              <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
             </Button>
           }
         />
-        <DropdownMenuContent align="end" className="text-muted-foreground">
+        <DropdownMenuContent
+          align="end"
+          className="text-muted-foreground shadow-sm"
+        >
           <DropdownMenuItem onClick={() => handleEdit()}>
-            <PencilSimpleLineIcon className="size-4" />
-            Edit Author
+            <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
+            <span>Edit Author</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => handleDelete()}
             variant="destructive"
           >
-            <TrashIcon className="size-4" />
-            Delete Author
+            <HugeiconsIcon icon={Delete02Icon} size={16} />
+            <span>Delete Author</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
