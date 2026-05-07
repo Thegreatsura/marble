@@ -101,7 +101,7 @@ export const columns: ColumnDef<Post>[] = [
         size="sm"
         variant="ghost"
       >
-        Published
+        Published On
         <CaretUpDownIcon className="size-3.5 opacity-70" />
       </Button>
     ),

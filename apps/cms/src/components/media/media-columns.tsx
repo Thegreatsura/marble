@@ -1,23 +1,7 @@
 "use client";
 
-import {
-  Copy01Icon,
-  Delete02Icon,
-  MoreVerticalIcon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Button } from "@marble/ui/components/button";
 import { Checkbox } from "@marble/ui/components/checkbox";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@marble/ui/components/dropdown-menu";
-import { toast } from "@marble/ui/components/sonner";
-import { cn } from "@marble/ui/lib/utils";
-import {
-  DotsThreeVerticalIcon,
   FileAudioIcon,
   FileIcon,
   FileImageIcon,
@@ -26,10 +10,11 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import Image from "next/image";
-import { type ElementType, useMemo } from "react";
+import { type ElementType, memo, useMemo } from "react";
 import { blurhashToDataUrl } from "@/lib/blurhash";
 import type { Media, MediaType } from "@/types/media";
 import { formatBytes } from "@/utils/string";
+import { MediaActions } from "./media-actions";
 
 interface MediaColumnsOptions {
   onDelete: (media: Media) => void;
@@ -56,7 +41,11 @@ function getMediaDimensions(media: Media) {
   return "-";
 }
 
-function MediaThumbnail({ media }: { media: Media }) {
+const MediaThumbnail = memo(function MediaThumbnail({
+  media,
+}: {
+  media: Media;
+}) {
   const Icon = mediaTypeIcons[media.type] || FileIcon;
   const blurDataUrl = useMemo(() => {
     if (media.type !== "image" || !media.blurHash) {
@@ -72,8 +61,10 @@ function MediaThumbnail({ media }: { media: Media }) {
           alt=""
           blurDataURL={blurDataUrl}
           className="size-full object-cover"
+          decoding="async"
           height={48}
           placeholder={blurDataUrl ? "blur" : "empty"}
+          sizes="48px"
           src={media.url}
           unoptimized
           width={48}
@@ -87,16 +78,7 @@ function MediaThumbnail({ media }: { media: Media }) {
       <Icon className="size-5 text-primary" weight="duotone" />
     </div>
   );
-}
-
-async function copyMediaUrl(url: string) {
-  try {
-    await navigator.clipboard.writeText(url);
-    toast.success("Copied media URL");
-  } catch {
-    toast.error("Could not copy media URL");
-  }
-}
+});
 
 export function getMediaColumns({
   onDelete,
@@ -190,64 +172,9 @@ export function getMediaColumns({
       },
     },
     {
-      id: "details",
-      header: "Details",
-      cell: ({ row }) => (
-        <span className="text-muted-foreground text-sm">
-          {getMediaDimensions(row.original)}
-        </span>
-      ),
-      meta: {
-        label: "Details",
-      },
-    },
-    {
-      id: "references",
-      header: "References",
-      cell: () => <span className="text-muted-foreground text-sm">-</span>,
-      meta: {
-        label: "References",
-      },
-    },
-    {
       id: "actions",
       cell: ({ row }) => (
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  className="size-8 p-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                  }}
-                  variant="ghost"
-                >
-                  <span className="sr-only">Open menu</span>
-                  <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  copyMediaUrl(row.original.url);
-                }}
-              >
-                <HugeiconsIcon className="mr-2 size-4" icon={Copy01Icon} />
-                Copy link
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onDelete(row.original)}
-                variant="destructive"
-              >
-                <HugeiconsIcon className="mr-2 size-4" icon={Delete02Icon} />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <MediaActions media={row.original} onDelete={onDelete} />
       ),
       enableHiding: false,
       enableSorting: false,

@@ -14,7 +14,6 @@ import { FileImageIcon } from "@phosphor-icons/react";
 import {
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
   type OnChangeFn,
   type PaginationState,
   type RowSelectionState,
@@ -22,7 +21,14 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useParams, useRouter } from "next/navigation";
-import { type MouseEvent, useEffect, useMemo, useState } from "react";
+import {
+  type MouseEvent,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useMediaPageFilters } from "@/lib/search-params";
@@ -79,15 +85,17 @@ export function MediaDataTable({
   const { handleDeleteComplete, handleBulkDeleteComplete } =
     useMediaActions(mediaQueryKey);
 
+  const requestDelete = useCallback((item: Media) => {
+    setMediaToDelete([item]);
+    setShowDeleteModal(true);
+  }, []);
+
   const columns = useMemo(
     () =>
       getMediaColumns({
-        onDelete: (item) => {
-          setMediaToDelete([item]);
-          setShowDeleteModal(true);
-        },
+        onDelete: requestDelete,
       }),
-    []
+    [requestDelete]
   );
 
   const pagination = useMemo<PaginationState>(
@@ -129,7 +137,6 @@ export function MediaDataTable({
     columns,
     pageCount,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     getRowId: (row) => row.id,
     manualFiltering: true,
     manualPagination: true,
@@ -154,35 +161,29 @@ export function MediaDataTable({
     [media, rowSelection]
   );
 
-  const onDeleteComplete = (ids: string[]) => {
-    if (ids.length === 1 && ids[0]) {
-      handleDeleteComplete(ids[0]);
-    } else {
-      handleBulkDeleteComplete(ids);
-    }
-    setRowSelection({});
-  };
+  const onDeleteComplete = useCallback(
+    (ids: string[]) => {
+      if (ids.length === 1 && ids[0]) {
+        handleDeleteComplete(ids[0]);
+      } else {
+        handleBulkDeleteComplete(ids);
+      }
+      setRowSelection({});
+    },
+    [handleBulkDeleteComplete, handleDeleteComplete]
+  );
 
-  const handleBulkDelete = () => {
+  const handleBulkDelete = useCallback(() => {
     setMediaToDelete(selectedMedia);
     setShowDeleteModal(true);
-  };
+  }, [selectedMedia]);
 
-  const openMediaDetail = (item: Media) => {
-    router.push(`/${params.workspace}/media/${item.id}`);
-  };
-
-  const shouldIgnoreRowClick = (event: MouseEvent) => {
-    const target = event.target;
-    return (
-      target instanceof HTMLElement &&
-      Boolean(
-        target.closest(
-          "button, a, input, textarea, select, [data-no-row-click], [role='button'], [role='checkbox'], [role='menuitem']"
-        )
-      )
-    );
-  };
+  const openMediaDetail = useCallback(
+    (item: Media) => {
+      router.push(`/${params.workspace}/media/${item.id}`);
+    },
+    [params.workspace, router]
+  );
 
   if (!hasAnyMedia) {
     return (
@@ -275,6 +276,11 @@ export function MediaDataTable({
                               : undefined
                           }
                           key={cell.id}
+                          {...(cell.column.id === "actions" && {
+                            "data-actions-cell": "true",
+                            onClick: (event: MouseEvent) =>
+                              event.stopPropagation(),
+                          })}
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -321,6 +327,18 @@ export function MediaDataTable({
         setIsOpen={setShowDeleteModal}
       />
     </>
+  );
+}
+
+function shouldIgnoreRowClick(event: MouseEvent) {
+  const target = event.target;
+  return (
+    target instanceof HTMLElement &&
+    Boolean(
+      target.closest(
+        "button, a, input, textarea, select, [data-no-row-click], [role='button'], [role='checkbox'], [role='menuitem']"
+      )
+    )
   );
 }
 
