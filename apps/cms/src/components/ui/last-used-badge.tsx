@@ -1,32 +1,17 @@
-import { Badge, type badgeVariants } from "@marble/ui/components/badge";
 import { cn } from "@marble/ui/lib/utils";
-import { cva, type VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "react";
 
-const lastUsedBadgePositions = cva("absolute", {
-  variants: {
-    position: {
-      "top-right": "-top-2 -right-2",
-      "top-left": "-top-2 -left-2",
-    },
-  },
-  defaultVariants: {
-    position: "top-right",
-  },
-});
-
-export interface LastUsedBadgeProps
-  extends HTMLAttributes<HTMLSpanElement>,
-    VariantProps<typeof badgeVariants>,
-    VariantProps<typeof lastUsedBadgePositions> {
+export interface LastUsedBadgeProps extends HTMLAttributes<HTMLSpanElement> {
   show?: boolean;
   text?: string;
+  variant?: string;
+  position?: string;
 }
 
 export function LastUsedBadge({
   className,
-  variant = "default",
-  position = "top-right",
+  variant: _variant,
+  position: _position,
   show = false,
   text,
   ...props
@@ -36,16 +21,14 @@ export function LastUsedBadge({
   }
 
   return (
-    <Badge
+    <span
       className={cn(
-        lastUsedBadgePositions({ position }),
-        "px-1.5 py-0 text-[11px] backdrop-blur-sm",
+        "-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 text-[11px] text-muted-foreground",
         className
       )}
-      variant={variant}
       {...props}
     >
       {text ?? "Last Used"}
-    </Badge>
+    </span>
   );
 }
