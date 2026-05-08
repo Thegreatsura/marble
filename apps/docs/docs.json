@@ -148,6 +148,17 @@
               "PATCH /v1/tags/{identifier}",
               "DELETE /v1/tags/{identifier}"
             ]
+          },
+          {
+            "group": "Media",
+            "icon": "image",
+            "pages": [
+              "GET /v1/media",
+              "GET /v1/media/{id}",
+              "POST /v1/media/upload",
+              "PATCH /v1/media/{id}",
+              "DELETE /v1/media/{id}"
+            ]
           }
         ]
       }
