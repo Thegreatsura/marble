@@ -72,6 +72,7 @@ The server currently exposes tools for:
 - Categories: list, get, create, update, delete
 - Tags: list, get, create, update, delete
 - Authors: list, get, create, update, delete
+- Media: list, get, upload from URL, update, delete
 
 Write operations require a private Marble API key.
 

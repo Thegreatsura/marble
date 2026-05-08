@@ -53,6 +53,56 @@ export async function writeJsonApi(
 }
 
 /**
+ * Uploads a binary body to the Marble API as multipart/form-data. The MCP tool
+ * uses this for URL-based media ingestion, where the server fetches the remote
+ * asset first and forwards it to Marble's media upload endpoint.
+ */
+export async function uploadMediaApi(
+  apiBaseUrl: string,
+  apiKey: string,
+  file: Blob,
+  filename: string
+) {
+  const formData = new FormData();
+  formData.set("file", file, filename);
+
+  const response = await fetch(buildUrl(apiBaseUrl, "/v1/media/upload"), {
+    method: "POST",
+    headers: {
+      Authorization: authHeaderValue(apiKey),
+      Accept: "application/json",
+    },
+    body: formData,
+  });
+
+  const text = await response.text();
+  const body = parseApiBody(text);
+
+  if (!response.ok) {
+    const message =
+      typeof body?.message === "string"
+        ? body.message
+        : typeof body?.error === "string"
+          ? body.error
+          : text || "The Marble API returned an error.";
+
+    if (response.status === 401) {
+      throw new Error(
+        "The Marble API key is missing or invalid. Ask the user to check their MCP Marble API key."
+      );
+    }
+
+    throw new Error(`Marble API ${response.status}: ${message}`);
+  }
+
+  if (text && !body) {
+    throw new Error("Marble API returned a non-JSON response.");
+  }
+
+  return body ?? {};
+}
+
+/**
  * Deletes a Marble API resource with the caller's API key and returns the
  * parsed JSON response.
  */

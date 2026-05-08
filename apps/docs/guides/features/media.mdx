@@ -1,30 +1,45 @@
 ---
 title: Media
-description: Upload, manage, and serve images and videos from Marble's CDN.
+description: Upload, manage, and serve workspace media from Marble's CDN.
 ---
 
-Marble handles your media so you can focus on writing. Upload images and videos directly to your workspace, and they're instantly available on a globally distributed CDN for lightning-fast delivery to your readers.
+Marble handles your media so you can focus on writing. Upload files to your
+workspace, keep useful metadata with them, and serve them through Marble's CDN.
 
 ## Supported media types
 
 <CardGroup cols={2}>
   <Card title="Images" icon="image">
-    Upload common image formats including JPEG, PNG, GIF, WebP. Perfect for
-    featured images, inline content, and author avatars.
+    Upload common image formats including JPEG, PNG, GIF, AVIF, and WebP.
+    Images include dimensions when Marble can read them.
   </Card>
+
   <Card title="Videos" icon="video">
-    Host video files directly in Marble. Supported formats include MP4 and WebM
-    for seamless playback across all browsers.
+    Host video files such as MP4 and WebM for posts, pages, and custom
+    frontends.
+  </Card>
+
+  <Card title="Audio" icon="audio-lines">
+    Store audio files such as MP3, WAV, OGG, and AAC for use in custom
+    experiences.
+  </Card>
+
+  <Card title="Documents" icon="file-text">
+    Upload documents such as PDFs and plain text files when you need CDN-backed
+    downloads.
   </Card>
 </CardGroup>
 
 ## How it works
 
-When you upload media to Marble, your files are stored on a globally distributed CDN. This means:
+When you upload media to Marble, the file is stored in Marble's object storage
+and served from a CDN URL.
 
-- **Instant loading** — Images and videos load quickly for readers anywhere in the world
-- **Automatic optimization** — Files are served from the edge location closest to your reader
-- **No configuration needed** — Just upload and Marble handles the rest
+- **Fast delivery** — Media is served from `cdn.marblecms.com`
+- **Stable URLs** — Use the returned URL in posts, websites, apps, or feeds
+- **Metadata included** — Marble stores fields like name, alt text, MIME type,
+  size, media type, dimensions, duration, blur hash, and upload date when
+  available
 
 ## Using media in your posts
 
@@ -35,31 +50,30 @@ When you upload media to Marble, your files are stored on a globally distributed
   </Step>
 
   <Step title="Upload Files">
-    Click **Upload** to add new images and videos. Files are processed and
-    available immediately.
+    Click **Upload** to add images, videos, audio, or documents. Files are
+    available as soon as the upload finishes.
   </Step>
 
   <Step title="Insert into Posts">
-    When editing a post, use the image or video node to insert media from your
-    library. You can also paste URLs directly.
+    When editing a post, use the image or video controls to insert media from
+    your library. You can also paste CDN URLs directly.
   </Step>
 </Steps>
 
 ## Accessing media via API
 
-All uploaded media is accessible through the API. When you fetch a post, any embedded images or videos include their CDN URLs:
+You can read and manage media through the public API.
 
-```json
-{
-  "id": "cmf3d1gsv11469tlkp53bcutv",
-  "title": "My Post with Media",
-  "content": "...",
-  "featuredImage": {
-    "url": "https://media.marblecms.com/featured-image.jpg",
-    "alt": "Featured image description"
-  }
-}
-```
+| Endpoint | Description |
+| --- | --- |
+| `GET /v1/media` | List media assets in your workspace. |
+| `GET /v1/media/:id` | Get one media asset and its metadata. |
+| `POST /v1/media/upload` | Upload a small file directly. Requires a private API key. |
+| `PATCH /v1/media/:id` | Update media metadata. Requires a private API key. |
+| `DELETE /v1/media/:id` | Delete a media asset and its stored file. Requires a private API key. |
+
+Uploads through the API are intended for small files. For larger uploads, use
+the dashboard uploader.
 
 <Tip>
   As a rule of thumb, avoid using very large images in your posts. Users with
@@ -71,11 +85,25 @@ All uploaded media is accessible through the API. When you fetch a post, any emb
 
 From the Media Library, you can:
 
-- **Search and filter** — Find files quickly by name or type
+- **Search and filter** — Find files quickly by name or media type
+- **Edit metadata** — Keep names and alt text useful for humans and frontends
 - **Delete unused files** — Remove media you no longer need
-- **View file details** — See file size, dimensions, and upload date
+- **View file details** — See URL, file size, MIME type, dimensions, and upload
+  date
+
+## Using media with MCP
+
+Marble's MCP server includes media tools for AI agents. Agents can list media,
+inspect a single asset, update metadata, delete assets, and upload media from a
+public URL.
 
 <Note>
-  Deleting media from the library will break any posts that reference those
-  files. Make sure to update your posts before removing media.
+  Remote MCP servers cannot read files from your local filesystem directly. To
+  upload through MCP, provide a URL that the server can fetch.
+</Note>
+
+<Note>
+  Deleting media removes the stored file. Any post, website, app, or feed that
+  uses that URL will stop loading it, so update those references before deleting
+  an asset.
 </Note>

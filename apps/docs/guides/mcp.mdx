@@ -237,6 +237,16 @@ Tool badges describe how clients may present or approve tool calls:
     | `update_author` | Update an existing author by ID or slug. Requires a private API key. | `DESTRUCTIVE` |
     | `delete_author` | Delete an author by ID or slug. Requires a private API key. | `DESTRUCTIVE` |
   </Accordion>
+
+  <Accordion title="Media">
+    | Tool | Description | Badges |
+    | --- | --- | --- |
+    | `get_media` | Get a paginated list of media assets with optional type, search, and sort filters. | `READ-ONLY` |
+    | `get_media_asset` | Get a single media asset by ID, including its CDN URL and metadata. | `READ-ONLY` |
+    | `upload_media_from_url` | Upload media from a public URL into your Marble workspace. Requires a private API key. |  |
+    | `update_media` | Update media metadata such as name and alt text. Requires a private API key. | `DESTRUCTIVE` |
+    | `delete_media` | Delete a media asset and its stored file. Requires a private API key. | `DESTRUCTIVE` |
+  </Accordion>
 </AccordionGroup>
 
 ## Authentication

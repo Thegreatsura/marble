@@ -74,4 +74,21 @@ export const MCP_TOOL_GROUPS = [
       { name: "delete_author", description: "Delete an author by ID or slug." },
     ],
   },
+  {
+    name: "Media",
+    description: "Read, upload, update, and delete Marble media assets.",
+    tools: [
+      { name: "get_media", description: "Get a paginated list of media." },
+      {
+        name: "get_media_asset",
+        description: "Get a single media asset by ID.",
+      },
+      {
+        name: "upload_media_from_url",
+        description: "Upload a remote file URL to Marble media.",
+      },
+      { name: "update_media", description: "Update media asset metadata." },
+      { name: "delete_media", description: "Delete a media asset by ID." },
+    ],
+  },
 ] as const;
