@@ -1,14 +1,14 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
-import { createDbClient } from "../lib/db";
-import { requireWorkspaceId } from "../lib/workspace";
+import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
+import { createDbClient } from "@/lib/db";
+import { requireWorkspaceId } from "@/lib/workspace";
 import {
   AuthorResponseSchema,
   AuthorsListResponseSchema,
   CreateAuthorBodySchema,
   CreateAuthorResponseSchema,
   UpdateAuthorBodySchema,
-} from "../schemas/authors";
+} from "@/schemas/authors";
 import {
   ConflictSchema,
   DeleteResponseSchema,
@@ -19,8 +19,8 @@ import {
   PageNotFoundSchema,
   PageQuerySchema,
   ServerErrorSchema,
-} from "../schemas/common";
-import type { Env } from "../types/env";
+} from "@/schemas/common";
+import type { Env } from "@/types/env";
 
 const authors = new OpenAPIHono<{ Bindings: Env }>();
 

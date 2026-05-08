@@ -1,7 +1,7 @@
 import type { MiddlewareHandler } from "hono";
-import { hashApiKey } from "../lib/crypto";
-import { createDbClient, type DbClient } from "../lib/db";
-import type { ApiKeyApp } from "../types/env";
+import { hashApiKey } from "@/lib/crypto";
+import { createDbClient, type DbClient } from "@/lib/db";
+import type { ApiKeyApp } from "@/types/env";
 
 /**
  * API Key Authorization Middleware

@@ -1,5 +1,5 @@
 import type { MiddlewareHandler } from "hono";
-import type { Env } from "../types/env";
+import type { Env } from "@/types/env";
 
 /**
  * System Secret Authentication Middleware

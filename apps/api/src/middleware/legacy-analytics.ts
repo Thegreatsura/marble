@@ -1,6 +1,6 @@
 import type { Context, MiddlewareHandler, Next } from "hono";
-import { createDbClient, type DbClient } from "../lib/db";
-import { checkApiUsage, type UsageCheckResult } from "../lib/usage";
+import { createDbClient, type DbClient } from "@/lib/db";
+import { checkApiUsage, type UsageCheckResult } from "@/lib/usage";
 import { runAnalyticsTask } from "./analytics";
 
 /**

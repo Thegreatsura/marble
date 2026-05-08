@@ -1,7 +1,7 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
-import { ALLOWED_MEDIA_MIME_TYPES, MAX_UPLOAD_SIZE } from "../lib/constants";
-import { createDbClient } from "../lib/db";
+import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
+import { ALLOWED_MEDIA_MIME_TYPES, MAX_UPLOAD_SIZE } from "@/lib/constants";
+import { createDbClient } from "@/lib/db";
 import {
   extensionFromFile,
   getImageDimensions,
@@ -9,8 +9,8 @@ import {
   objectKeyFromUrl,
   publicUrl,
   serializeMedia,
-} from "../lib/media";
-import { requireWorkspaceId } from "../lib/workspace";
+} from "@/lib/media";
+import { requireWorkspaceId } from "@/lib/workspace";
 import {
   DeleteResponseSchema,
   ErrorSchema,
@@ -18,7 +18,7 @@ import {
   NotFoundSchema,
   PageNotFoundSchema,
   ServerErrorSchema,
-} from "../schemas/common";
+} from "@/schemas/common";
 import {
   MediaListResponseSchema,
   MediaParamsSchema,
@@ -26,8 +26,8 @@ import {
   MediaResponseSchema,
   UpdateMediaBodySchema,
   UploadMediaBodySchema,
-} from "../schemas/media";
-import type { ApiKeyApp } from "../types/env";
+} from "@/schemas/media";
+import type { ApiKeyApp } from "@/types/env";
 
 const media = new OpenAPIHono<ApiKeyApp>();
 

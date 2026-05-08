@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import { createCacheClient } from "../lib/cache";
-import type { ApiKeyApp } from "../types/env";
-import { CacheInvalidateSchema } from "../validations/misc";
+import { createCacheClient } from "@/lib/cache";
+import type { ApiKeyApp } from "@/types/env";
+import { CacheInvalidateSchema } from "@/validations/misc";
 
 const invalidate = new Hono<ApiKeyApp>();
 

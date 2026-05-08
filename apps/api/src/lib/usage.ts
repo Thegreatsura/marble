@@ -1,7 +1,7 @@
 import { sendUsageLimitEmail } from "@marble/email";
 import { Redis } from "@upstash/redis/cloudflare";
 import { Resend } from "resend";
-import type { createDbClient } from "../lib/db";
+import type { createDbClient } from "@/lib/db";
 
 type DbClient = ReturnType<typeof createDbClient>;
 

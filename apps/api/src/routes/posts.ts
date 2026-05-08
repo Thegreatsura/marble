@@ -1,10 +1,10 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { NodeHtmlMarkdown } from "node-html-markdown";
-import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
-import { createDbClient } from "../lib/db";
-import { buildFieldsObject, buildStatusFilter } from "../lib/posts";
-import { sanitizeHtml } from "../lib/sanitize";
-import { requireWorkspaceId } from "../lib/workspace";
+import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
+import { createDbClient } from "@/lib/db";
+import { buildFieldsObject, buildStatusFilter } from "@/lib/posts";
+import { sanitizeHtml } from "@/lib/sanitize";
+import { requireWorkspaceId } from "@/lib/workspace";
 import {
   ConflictSchema,
   DeleteResponseSchema,
@@ -13,7 +13,7 @@ import {
   NotFoundSchema,
   PageNotFoundSchema,
   ServerErrorSchema,
-} from "../schemas/common";
+} from "@/schemas/common";
 import {
   CreatePostBodySchema,
   CreatePostResponseSchema,
@@ -24,8 +24,8 @@ import {
   SinglePostQuerySchema,
   UpdatePostBodySchema,
   UpdatePostResponseSchema,
-} from "../schemas/posts";
-import type { Env } from "../types/env";
+} from "@/schemas/posts";
+import type { Env } from "@/types/env";
 
 const posts = new OpenAPIHono<{ Bindings: Env }>();
 

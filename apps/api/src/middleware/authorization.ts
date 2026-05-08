@@ -1,5 +1,5 @@
 import type { Context, MiddlewareHandler, Next } from "hono";
-import { createDbClient, type DbClient } from "../lib/db";
+import { createDbClient, type DbClient } from "@/lib/db";
 
 export const authorization =
   (): MiddlewareHandler => async (c: Context, next: Next) => {

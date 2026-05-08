@@ -1,6 +1,6 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import type { Context, MiddlewareHandler, Next } from "hono";
-import { createRedisClient } from "../lib/redis";
+import { createRedisClient } from "@/lib/redis";
 
 export interface RateLimit {
   limit: number;

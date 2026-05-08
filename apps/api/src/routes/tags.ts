@@ -1,7 +1,7 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
-import { createDbClient } from "../lib/db";
-import { requireWorkspaceId } from "../lib/workspace";
+import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
+import { createDbClient } from "@/lib/db";
+import { requireWorkspaceId } from "@/lib/workspace";
 import {
   ConflictSchema,
   DeleteResponseSchema,
@@ -12,15 +12,15 @@ import {
   PageNotFoundSchema,
   PageQuerySchema,
   ServerErrorSchema,
-} from "../schemas/common";
+} from "@/schemas/common";
 import {
   CreateTagBodySchema,
   CreateTagResponseSchema,
   TagResponseSchema,
   TagsListResponseSchema,
   UpdateTagBodySchema,
-} from "../schemas/tags";
-import type { Env } from "../types/env";
+} from "@/schemas/tags";
+import type { Env } from "@/types/env";
 
 const tags = new OpenAPIHono<{ Bindings: Env }>();
 

@@ -1,6 +1,6 @@
 import { createClient as createHyperdriveClient } from "@marble/db/hyperdrive";
 import { createClient as createWorkersClient } from "@marble/db/workers";
-import type { Env } from "../types/env";
+import type { Env } from "@/types/env";
 
 /**
  * Get the database connection string.

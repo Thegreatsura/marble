@@ -1,12 +1,12 @@
 import type { Context, MiddlewareHandler } from "hono";
-import { createDbClient, type DbClient } from "../lib/db";
-import { createPolarClient } from "../lib/polar";
+import { createDbClient, type DbClient } from "@/lib/db";
+import { createPolarClient } from "@/lib/polar";
 import {
   checkApiUsage,
   notifyApiUsageThreshold,
   type UsageCheckResult,
-} from "../lib/usage";
-import type { ApiKeyApp } from "../types/env";
+} from "@/lib/usage";
+import type { ApiKeyApp } from "@/types/env";
 
 interface AnalyticsTaskParams {
   db: ReturnType<typeof createDbClient>;
