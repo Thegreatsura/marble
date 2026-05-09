@@ -1,26 +1,17 @@
 "use client";
 
-import { WebhookIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
-import { PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import dynamic from "next/dynamic";
 import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
+import {
+  WebhookDataTable,
+  WebhooksEmptyState,
+} from "@/components/webhooks/webhook-data-table";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 import type { Webhook } from "@/types/webhook";
-
-const CreateWebhookSheet = dynamic(
-  () => import("@/components/webhooks/create-webhook")
-);
-
-const WebhookCard = dynamic(() =>
-  import("@/components/webhooks/webhook-card").then((mod) => mod.WebhookCard)
-);
 
 export function PageClient() {
   const workspaceId = useWorkspaceId();
@@ -55,11 +46,18 @@ export function PageClient() {
     variables: toggleVariables,
     isPending: isToggling,
   } = useMutation({
-    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) =>
-      fetch(`/api/webhooks/${id}`, {
+    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
+      const response = await fetch(`/api/webhooks/${id}`, {
         method: "PATCH",
         body: JSON.stringify({ enabled }),
-      }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update webhook");
+      }
+
+      return response.json();
+    },
     onMutate: async (newWebhookData) => {
       if (!workspaceId) {
         return;
@@ -108,63 +106,25 @@ export function PageClient() {
 
   if (webhooks?.length === 0) {
     return (
-      <DashboardBody
-        className="grid h-full place-content-center"
-        size="compact"
-      >
-        <div className="flex max-w-80 flex-col items-center gap-4">
-          <div className="p-2">
-            <HugeiconsIcon className="size-16" icon={WebhookIcon} />
-          </div>
-          <div className="flex flex-col items-center gap-4 text-center">
-            <p className="text-muted-foreground text-sm">
-              Webhooks let you run actions on your server when events happen in
-              your workspace.
-            </p>
-            <CreateWebhookSheet>
-              <Button>
-                <PlusIcon className="size-4" />
-                New Webhook
-              </Button>
-            </CreateWebhookSheet>
-          </div>
-        </div>
+      <DashboardBody className="pt-10 pb-16" size="compact">
+        <WebhooksEmptyState />
       </DashboardBody>
     );
   }
 
   return (
     <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
-      <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <div />
-          <CreateWebhookSheet>
-            <Button>
-              <PlusIcon className="size-4" />
-              Add Endpoint
-            </Button>
-          </CreateWebhookSheet>
-        </div>
-
-        <ul className="grid gap-4">
-          {webhooks?.map((webhook) => (
-            <WebhookCard
-              isToggling={isToggling}
-              key={webhook.id}
-              onDelete={() => {
-                if (workspaceId) {
-                  queryClient.invalidateQueries({
-                    queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
-                  });
-                }
-              }}
-              onToggle={toggleWebhook}
-              toggleVariables={toggleVariables}
-              webhook={webhook}
-            />
-          ))}
-        </ul>
-      </div>
+      <WebhookDataTable
+        isToggling={isToggling}
+        onDelete={() => {
+          queryClient.invalidateQueries({
+            queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
+          });
+        }}
+        onToggle={toggleWebhook}
+        toggleVariables={toggleVariables}
+        webhooks={webhooks ?? []}
+      />
     </DashboardBody>
   );
 }

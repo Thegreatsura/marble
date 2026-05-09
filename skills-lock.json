@@ -11,6 +11,12 @@
       "sourceType": "github",
       "computedHash": "7e6c8d495e66e88a20dc45d17d24b445d6c5c9072855c78d8800fff994bc813f"
     },
+    "react-email": {
+      "source": "resend/react-email",
+      "sourceType": "github",
+      "skillPath": "skills/react-email/SKILL.md",
+      "computedHash": "f086aedad8c9d9e00fa133f7c3ce33762ba60413c664fb3faf4f3a69a83bd1b1"
+    },
     "tiptap": {
       "source": "ueberdosis/tiptap",
       "sourceType": "github",

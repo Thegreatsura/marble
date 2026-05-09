@@ -70,15 +70,6 @@ export async function GET() {
           canceledAt: true,
         },
       },
-      editorPreferences: {
-        select: {
-          ai: {
-            select: {
-              enabled: true,
-            },
-          },
-        },
-      },
     },
     orderBy: {
       createdAt: "desc",
@@ -94,7 +85,6 @@ export async function GET() {
     return {
       ...workspace,
       currentUserRole: currentUserMember?.role || null,
-      ai: workspace.editorPreferences?.ai || { enabled: false },
       subscription: activeSubscription
         ? {
             ...activeSubscription,

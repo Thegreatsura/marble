@@ -253,7 +253,7 @@ export async function sendFounderEmailAction({
       from: "Taqib <taqib@marblecms.com>",
       to: userEmail,
       text: `This is a mock founder email${scheduledInfo}`,
-      subject: "A note from Marble",
+      subject: "Thanks for trying Marble",
       _mockContext: { type: "founder", data: { userEmail, scheduledAt } },
     });
   }

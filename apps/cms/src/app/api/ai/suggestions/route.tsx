@@ -53,21 +53,6 @@ export async function POST(request: Request) {
 
   const bypassCache = request.headers.get("x-bypass-cache") === "true";
 
-  const workspace = await db.organization.findUnique({
-    where: { id: workspaceId },
-    select: {
-      editorPreferences: {
-        select: {
-          ai: { select: { enabled: true } },
-        },
-      },
-    },
-  });
-
-  if (!workspace?.editorPreferences?.ai?.enabled) {
-    return NextResponse.json({ error: "AI is not enabled" }, { status: 400 });
-  }
-
   const body = await request.json();
   const parsedBody = aiReadabilityBodySchema.safeParse(body);
 

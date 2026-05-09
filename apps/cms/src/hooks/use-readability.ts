@@ -118,7 +118,7 @@ export function useReadability({
   text,
 }: UseReadabilityParams): ReadabilityResult {
   const { activeWorkspace } = useWorkspace();
-  const aiEnabled = Boolean(activeWorkspace?.ai?.enabled);
+  const aiEnabled = true;
   const debounceMs = aiEnabled ? 1500 : 500;
 
   const debouncedText = useDebounce(text, debounceMs);

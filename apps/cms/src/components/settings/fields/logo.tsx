@@ -5,7 +5,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@marble/ui/components/avatar";
-import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
@@ -17,6 +16,7 @@ import {
 } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useId, useState } from "react";
+import { SettingsSection } from "@/components/settings/section";
 import { CopyButton } from "@/components/ui/copy-button";
 import { organization } from "@/lib/auth/client";
 import { uploadFile } from "@/lib/media/upload";
@@ -90,75 +90,62 @@ export function Logo() {
   });
 
   return (
-    <Card className="gap-0 rounded-[20px] border-none bg-surface p-2">
-      <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
-        <div className="flex flex-col gap-1.5">
-          <CardTitle className="font-medium text-lg">Workspace Logo.</CardTitle>
-          <CardDescription>
-            Upload a logo for your workspace. (Accepted file types are .png,
-            .jpg, .jpeg, .webp)
-          </CardDescription>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-5">
-            <Label
-              className={cn(
-                "group relative size-16 cursor-pointer overflow-hidden rounded-full border",
-                (isUpdatingLogo || !isOwner) && "pointer-events-none",
-                !isOwner && "opacity-50"
-              )}
-              htmlFor={fileId}
-            >
-              <Avatar className="size-16">
-                <AvatarImage src={logoUrl || undefined} />
-                <AvatarFallback>
-                  <ImageIcon className="size-4" />
-                </AvatarFallback>
-              </Avatar>
-              <input
-                accept="image/*"
-                className="sr-only"
-                disabled={!isOwner}
-                id={fileId}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file && !isUpdatingLogo && isOwner) {
-                    uploadLogo(file);
-                  }
-                }}
-                title="Upload logo"
-                type="file"
-              />
-              <div
-                className={cn(
-                  "absolute inset-0 flex size-full items-center justify-center bg-background/50 backdrop-blur-xs transition-opacity duration-300",
-                  isUpdatingLogo
-                    ? "opacity-100"
-                    : "opacity-0 group-hover:opacity-100"
-                )}
-              >
-                {isUpdatingLogo ? (
-                  <CircleNotchIcon className="size-4 animate-spin" />
-                ) : (
-                  <UploadSimpleIcon className="size-4" />
-                )}
-              </div>
-            </Label>
+    <SettingsSection
+      description="Upload a logo for your workspace. PNG, JPG, JPEG, and WEBP files are supported. Square images work best."
+      title="Workspace Logo"
+    >
+      <div className="flex items-center gap-6 rounded-[14px] bg-background px-4 py-3.5">
+        <Label
+          className={cn(
+            "group relative size-16 shrink-0 cursor-pointer overflow-hidden rounded-full border",
+            (isUpdatingLogo || !isOwner) && "pointer-events-none",
+            !isOwner && "opacity-50"
+          )}
+          htmlFor={fileId}
+        >
+          <Avatar className="size-16">
+            <AvatarImage src={logoUrl || undefined} />
+            <AvatarFallback>
+              <ImageIcon className="size-4" />
+            </AvatarFallback>
+          </Avatar>
+          <input
+            accept="image/*"
+            className="sr-only"
+            disabled={!isOwner}
+            id={fileId}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file && !isUpdatingLogo && isOwner) {
+                uploadLogo(file);
+              }
+            }}
+            title="Upload logo"
+            type="file"
+          />
+          <div
+            className={cn(
+              "absolute inset-0 flex size-full items-center justify-center bg-background/50 backdrop-blur-xs transition-opacity duration-300",
+              isUpdatingLogo
+                ? "opacity-100"
+                : "opacity-0 group-hover:opacity-100"
+            )}
+          >
+            {isUpdatingLogo ? (
+              <CircleNotchIcon className="size-4 animate-spin" />
+            ) : (
+              <UploadSimpleIcon className="size-4" />
+            )}
           </div>
-          <div className="flex w-full items-center gap-2">
-            <Input readOnly value={logoUrl || ""} />
-            <CopyButton
-              textToCopy={logoUrl || ""}
-              toastMessage="Logo URL copied to clipboard."
-            />
-          </div>
+        </Label>
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <Input readOnly value={logoUrl || ""} />
+          <CopyButton
+            textToCopy={logoUrl || ""}
+            toastMessage="Logo URL copied to clipboard."
+          />
         </div>
       </div>
-      <div className="px-2 pt-4 pb-2">
-        <p className="text-muted-foreground text-sm">
-          Square images work best for logos
-        </p>
-      </div>
-    </Card>
+    </SettingsSection>
   );
 }

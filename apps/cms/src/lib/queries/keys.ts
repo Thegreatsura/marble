@@ -51,4 +51,5 @@ export const QUERY_KEYS = {
 
   // Globally scoped
   USER: ["user"],
+  NOTIFICATION_PREFERENCES: ["notification-preferences"],
 };

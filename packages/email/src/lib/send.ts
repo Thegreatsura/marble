@@ -100,7 +100,7 @@ export async function sendWelcomeEmail(
     from: EMAIL_CONFIG.from,
     replyTo: EMAIL_CONFIG.replyTo,
     to: userEmail,
-    subject: "Welcome to Marble!",
+    subject: "Welcome to Marble",
     react: WelcomeEmail({
       userEmail,
       baseUrl: EMAIL_CONFIG.getAppUrl(),
@@ -155,7 +155,7 @@ export async function sendFounderEmail(
     from: EMAIL_CONFIG.founderFrom,
     replyTo: EMAIL_CONFIG.founderReplyTo,
     to: userEmail,
-    subject: "Welcome to Marble",
+    subject: "Thanks for trying Marble",
     react: FounderEmail({
       userEmail,
     }),

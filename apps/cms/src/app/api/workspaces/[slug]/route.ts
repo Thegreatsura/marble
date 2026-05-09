@@ -71,15 +71,6 @@ export async function GET(
           canceledAt: true,
         },
       },
-      editorPreferences: {
-        select: {
-          ai: {
-            select: {
-              enabled: true,
-            },
-          },
-        },
-      },
     },
   });
 

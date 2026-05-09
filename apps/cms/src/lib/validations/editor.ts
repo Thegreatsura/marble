@@ -1,11 +1,5 @@
 import * as z from "zod";
 
-export const editorPreferenceSchema = z.object({
-  ai: z.object({
-    enabled: z.boolean(),
-  }),
-});
-
 export const aiReadabilityBodySchema = z.object({
   content: z.string(),
   metrics: z.object({
@@ -38,5 +32,3 @@ export const aiReadabilityResponseSchema = z.object({
     )
     .max(8),
 });
-
-export type EditorPreferenceValues = z.infer<typeof editorPreferenceSchema>;

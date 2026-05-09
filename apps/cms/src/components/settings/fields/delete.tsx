@@ -15,7 +15,6 @@ import {
   AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
-import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
@@ -23,6 +22,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { SettingsSection } from "@/components/settings/section";
 import { AsyncButton } from "@/components/ui/async-button";
 import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -82,26 +82,22 @@ export function Delete() {
   }
 
   return (
-    <Card className="gap-0 rounded-[20px] border-none bg-surface p-2">
-      <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
-        <div className="flex flex-col gap-1.5">
-          <CardTitle className="font-medium text-lg">
-            Delete workspace.
-          </CardTitle>
-          <CardDescription>
-            Permanently delete your workspace and all associated data within.
-            This action cannot be undone.
-          </CardDescription>
+    <SettingsSection
+      description="Permanently delete your workspace and all associated data within. This action cannot be undone."
+      title="Delete Workspace"
+    >
+      <div className="flex flex-col gap-3 rounded-[14px] bg-background px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+            <HugeiconsIcon icon={Alert02Icon} size={18} strokeWidth={2} />
+          </div>
+          <p className="text-muted-foreground text-sm">
+            Workspace deletion is permanent.
+          </p>
         </div>
-      </div>
-      <div className="flex justify-end px-2 pt-2">
         <AlertDialog>
           <AlertDialogTrigger
-            render={
-              <Button size="sm" variant="destructive">
-                Delete Workspace
-              </Button>
-            }
+            render={<Button variant="destructive">Delete Workspace</Button>}
           />
           <AlertDialogContent variant="card">
             <AlertDialogHeader className="flex-row items-center justify-between px-4 py-2">
@@ -169,6 +165,6 @@ export function Delete() {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </Card>
+    </SettingsSection>
   );
 }

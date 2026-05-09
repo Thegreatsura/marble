@@ -82,8 +82,7 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
     };
   }, [editor]);
 
-  const aiEnabled = Boolean(activeWorkspace?.ai?.enabled);
-  const debouncedText = useDebounce(editorText, aiEnabled ? 1500 : 500);
+  const debouncedText = useDebounce(editorText, 1500);
 
   const metrics = useMemo(() => {
     if (!editor) {
@@ -151,7 +150,7 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
       workspaceId,
       postId ?? "draft"
     ),
-    enabled: aiEnabled && editorHTML.trim().length > 0,
+    enabled: editorHTML.trim().length > 0,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -178,7 +177,6 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
 
   useEffect(() => {
     if (
-      aiEnabled &&
       activeTab === "analysis" &&
       !!workspaceId &&
       !hasFetchedAiOnce &&
@@ -187,14 +185,7 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
       refetchAi();
       setHasFetchedAiOnce(true);
     }
-  }, [
-    aiEnabled,
-    activeTab,
-    workspaceId,
-    hasFetchedAiOnce,
-    editorHTML,
-    refetchAi,
-  ]);
+  }, [activeTab, workspaceId, hasFetchedAiOnce, editorHTML, refetchAi]);
 
   const handleRefreshAi = () => {
     bypassCacheRef.current = true;
@@ -253,7 +244,7 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
             >
               <Suspense fallback={<TabLoadingSpinner />}>
                 <AnalysisTab
-                  aiEnabled={aiEnabled}
+                  aiEnabled
                   aiLoading={aiLoading}
                   aiSuggestions={aiData?.suggestions ?? []}
                   localSuggestions={localSuggestions}

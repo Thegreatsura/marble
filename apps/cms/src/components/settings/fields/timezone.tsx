@@ -1,14 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { cn } from "@marble/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
+import { SettingsSection } from "@/components/settings/section";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
@@ -81,60 +80,45 @@ export function Timezone() {
   };
 
   return (
-    <Card className="rounded-[20px] border-none bg-surface p-2">
+    <SettingsSection
+      description="The timezone of your workspace. Changes affect scheduled posts."
+      title="Workspace Timezone"
+    >
       <form
-        className="flex flex-col"
+        className="flex flex-col gap-2 rounded-[14px] bg-background px-4 py-3.5 sm:flex-row sm:items-start"
         onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}
       >
-        <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
-          <div className="flex flex-col gap-1.5">
-            <CardTitle className="font-medium text-lg">
-              Workspace Timezone
-            </CardTitle>
-            <CardDescription>The timezone of your workspace.</CardDescription>
-          </div>
-          <div className="flex w-full flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <div className="flex flex-1 flex-col gap-2">
-                <Label className="sr-only" htmlFor="timezone">
-                  Timezone
-                </Label>
-                <TimezoneSelector
-                  disabled={!isOwner}
-                  onValueChange={(value) => {
-                    timezoneForm.setValue("timezone", value, {
-                      shouldDirty: true,
-                    });
-                    timezoneForm.trigger("timezone");
-                  }}
-                  placeholder="Select timezone..."
-                  timezones={timezones}
-                  value={timezoneForm.watch("timezone")}
-                />
-              </div>
-            </div>
-            {timezoneForm.formState.errors.timezone && (
-              <ErrorMessage>
-                {timezoneForm.formState.errors.timezone.message}
-              </ErrorMessage>
-            )}
-          </div>
+        <div className="min-w-0 flex-1">
+          <Label className="sr-only" htmlFor="timezone">
+            Timezone
+          </Label>
+          <TimezoneSelector
+            disabled={!isOwner}
+            onValueChange={(value) => {
+              timezoneForm.setValue("timezone", value, {
+                shouldDirty: true,
+              });
+              timezoneForm.trigger("timezone");
+            }}
+            placeholder="Select timezone..."
+            timezones={timezones}
+            value={timezoneForm.watch("timezone")}
+          />
+          {timezoneForm.formState.errors.timezone && (
+            <ErrorMessage>
+              {timezoneForm.formState.errors.timezone.message}
+            </ErrorMessage>
+          )}
         </div>
-        <div className="flex items-center justify-between px-2 pt-2">
-          <p className="text-muted-foreground text-sm">
-            Changes affect scheduled posts
-          </p>
-          <AsyncButton
-            className={cn("flex w-20 items-center gap-2 self-end")}
-            disabled={!isOwner || !timezoneForm.formState.isDirty}
-            isLoading={isPending}
-            size="sm"
-            type="submit"
-          >
-            Save
-          </AsyncButton>
-        </div>
+        <AsyncButton
+          className="w-20 self-end"
+          disabled={!isOwner || !timezoneForm.formState.isDirty}
+          isLoading={isPending}
+          type="submit"
+        >
+          Save
+        </AsyncButton>
       </form>
-    </Card>
+    </SettingsSection>
   );
 }

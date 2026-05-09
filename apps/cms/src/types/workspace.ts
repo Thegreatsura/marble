@@ -40,9 +40,6 @@ export interface Workspace {
     cancelAtPeriodEnd?: boolean;
     canceledAt?: string | Date | null;
   } | null;
-  ai: {
-    enabled: boolean;
-  } | null;
 }
 
 export interface WorkspaceContextType {

@@ -1,15 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { cn } from "@marble/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { useForm } from "react-hook-form";
+import { SettingsSection } from "@/components/settings/section";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { organization } from "@/lib/auth/client";
@@ -97,54 +96,39 @@ export function Slug() {
   };
 
   return (
-    <Card className="rounded-[20px] border-none bg-surface p-2">
+    <SettingsSection
+      description="Your unique workspace slug. Used in your workspace URL."
+      title="Workspace Slug"
+    >
       <form
-        className="flex flex-col"
+        className="flex flex-col gap-2 rounded-[14px] bg-background px-4 py-3.5 sm:flex-row sm:items-start"
         onSubmit={slugForm.handleSubmit(onSlugSubmit)}
       >
-        <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
-          <div className="flex flex-col gap-1.5">
-            <CardTitle className="font-medium text-lg">
-              Workspace Slug
-            </CardTitle>
-            <CardDescription>Your unique workspace slug.</CardDescription>
-          </div>
-          <div className="flex w-full flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <div className="flex flex-1 flex-col gap-2">
-                <Label className="sr-only" htmlFor={slugId}>
-                  Slug
-                </Label>
-                <Input
-                  id={slugId}
-                  {...slugForm.register("slug")}
-                  disabled={!isOwner}
-                  placeholder="workspace"
-                />
-              </div>
-            </div>
-            {slugForm.formState.errors.slug && (
-              <ErrorMessage>
-                {slugForm.formState.errors.slug.message}
-              </ErrorMessage>
-            )}
-          </div>
+        <div className="min-w-0 flex-1">
+          <Label className="sr-only" htmlFor={slugId}>
+            Slug
+          </Label>
+          <Input
+            id={slugId}
+            {...slugForm.register("slug")}
+            disabled={!isOwner}
+            placeholder="workspace"
+          />
+          {slugForm.formState.errors.slug && (
+            <ErrorMessage>
+              {slugForm.formState.errors.slug.message}
+            </ErrorMessage>
+          )}
         </div>
-        <div className="flex items-center justify-between px-2 pt-2">
-          <p className="text-muted-foreground text-sm">
-            Used in your workspace URL
-          </p>
-          <AsyncButton
-            className={cn("flex w-20 items-center gap-2 self-end")}
-            disabled={!isOwner || !slugForm.formState.isDirty}
-            isLoading={isPending}
-            size="sm"
-            type="submit"
-          >
-            Save
-          </AsyncButton>
-        </div>
+        <AsyncButton
+          className="w-20 self-end"
+          disabled={!isOwner || !slugForm.formState.isDirty}
+          isLoading={isPending}
+          type="submit"
+        >
+          Save
+        </AsyncButton>
       </form>
-    </Card>
+    </SettingsSection>
   );
 }
