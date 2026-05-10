@@ -1,5 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { SERVER_INSTRUCTIONS } from "@/lib/instructions";
+import { getServerInstructions } from "@/lib/instructions";
 import { registerAuthorTools } from "@/tools/authors";
 import { registerCategoryTools } from "@/tools/categories";
 import { registerMediaTools } from "@/tools/media";
@@ -13,7 +13,7 @@ export function createServer(apiBaseUrl: string, apiKey: string) {
       version: "1.0.0",
     },
     {
-      instructions: SERVER_INSTRUCTIONS,
+      instructions: getServerInstructions(),
     }
   );
 

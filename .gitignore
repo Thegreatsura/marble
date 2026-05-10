@@ -45,3 +45,6 @@ yarn-error.log*
 .claude/skills/
 
 docs
+
+# Local only references
+school/
