@@ -23,7 +23,7 @@ function SharePageClient({ data, status }: SharePageClientProps) {
   const { post } = data;
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative flex min-h-dvh flex-col bg-background">
       <header className="border-b">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
@@ -38,7 +38,7 @@ function SharePageClient({ data, status }: SharePageClientProps) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-screen-md py-14 max-sm:px-4 lg:py-20">
+      <main className="mx-auto max-w-screen-md flex-1 py-14 max-sm:px-4 lg:py-20">
         <div className="mx-auto max-w-screen-md">
           <header className="mb-8">
             <h1 className="mb-4 font-semibold text-4xl leading-tight">
