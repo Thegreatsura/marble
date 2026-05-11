@@ -149,20 +149,20 @@ export function ShareModal({ postId }: ShareModalProps) {
                   {formatExpiration(expiresAt)}
                 </Badge>
               )}
+              <DialogFooter>
+                <DialogClose size="sm">Close</DialogClose>
+                <AsyncButton
+                  disabled={isPending}
+                  isLoading={isPending}
+                  onClick={() => generateShareLink()}
+                  size="sm"
+                  type="button"
+                >
+                  Generate
+                </AsyncButton>
+              </DialogFooter>
             </div>
           </DialogBody>
-          <DialogFooter>
-            <DialogClose size="sm">Close</DialogClose>
-            <AsyncButton
-              disabled={isPending}
-              isLoading={isPending}
-              onClick={() => generateShareLink()}
-              size="sm"
-              type="button"
-            >
-              Generate
-            </AsyncButton>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
