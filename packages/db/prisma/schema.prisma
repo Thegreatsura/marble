@@ -70,7 +70,7 @@ model Organization {
   subscriptions Subscription[]
   tags          Tag[]
   fieldOptions  FieldOption[]
-  webhooks      Webhook[]
+  webhookEndpoints WebhookEndpoint[]
   ShareLink     ShareLink[]
   usageEvents   UsageEvent[]
   ApiToken      ApiKey[]
@@ -190,22 +190,22 @@ model Category {
   @@map("category")
 }
 
-model Webhook {
-  id          String         @id @default(cuid())
+model WebhookEndpoint {
+  id          String               @id @default(cuid())
   name        String
-  endpoint    String
+  url         String
   secret      String
-  enabled     Boolean        @default(true)
+  enabled     Boolean              @default(true)
   workspaceId String
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  events      WebhookEvent[]
-  format      PayloadFormat  @default(json)
-  workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  events      WorkspaceEventType[]
+  format      PayloadFormat        @default(json)
+  workspace   Organization         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId])
   @@index([workspaceId, enabled])
-  @@map("webhook")
+  @@map("webhook_endpoint")
 }
 
 model User {
@@ -458,19 +458,27 @@ enum SubscriptionStatus {
   canceled // Canceled (Polar uses American spelling)
 }
 
-enum WebhookEvent {
+enum WorkspaceEventType {
+  post_created
   post_published
-  post_deleted
   post_updated
+  post_deleted
+
   category_created
   category_updated
   category_deleted
+
   tag_created
   tag_updated
   tag_deleted
+
   media_uploaded
   media_updated
   media_deleted
+
+  author_created
+  author_updated
+  author_deleted
 }
 
 enum PayloadFormat {
