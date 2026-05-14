@@ -109,8 +109,8 @@ function PageClient() {
   return (
     <DashboardBody className="flex flex-col gap-8 py-12" size="compact">
       {/* Current Plan Header */}
-      <Card className="gap-0 rounded-[20px] border-none bg-surface p-1.5">
-        <div className="flex items-center justify-between rounded-[12px] bg-background p-6 shadow-xs">
+      <Card className="gap-0 rounded-[20px] border-none bg-surface p-1">
+        <div className="flex items-center justify-between rounded-[16px] bg-background p-6 shadow-xs">
           <div className="flex flex-col gap-1">
             <CardTitle className="font-medium text-lg">Billing Plan</CardTitle>
             <CardDescription>View and manage your billing plan</CardDescription>
@@ -169,8 +169,8 @@ function PageClient() {
 
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {hobbyPlan && (
-            <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1.5">
-              <div className="flex h-full flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+            <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1">
+              <div className="flex h-full flex-col gap-6 rounded-[16px] bg-background p-6 shadow-xs">
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="font-semibold text-xl">{hobbyPlan.title}</h3>
@@ -208,8 +208,8 @@ function PageClient() {
           )}
 
           {proPlan && (
-            <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1.5">
-              <div className="flex h-full flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+            <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1">
+              <div className="flex h-full flex-col gap-6 rounded-[16px] bg-background p-6 shadow-xs">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h3 className="font-semibold text-xl">{proPlan.title}</h3>

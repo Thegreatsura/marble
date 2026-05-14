@@ -50,7 +50,7 @@ export function InvoiceDataTable<TData, TValue>({
   if (data.length === 0) {
     return (
       <div className="overflow-hidden rounded-[20px] bg-surface p-1">
-        <div className="rounded-[14px] bg-background px-4 py-10 text-center shadow-xs">
+        <div className="rounded-[16px] bg-background px-4 py-10 text-center shadow-xs">
           <p className="text-muted-foreground text-sm">No invoices yet.</p>
         </div>
       </div>
@@ -103,7 +103,7 @@ export function InvoiceDataTable<TData, TValue>({
           ) : (
             <TableRow className="border-0 bg-background">
               <TableCell
-                className="h-28 rounded-[14px] text-center text-muted-foreground text-sm"
+                className="h-28 rounded-[16px] text-center text-muted-foreground text-sm"
                 colSpan={table.getVisibleLeafColumns().length}
               >
                 No invoices match your filters.
@@ -134,13 +134,13 @@ function getHeaderClassName(columnId: string) {
 function getCellClassName(columnId: string) {
   switch (columnId) {
     case "date":
-      return "rounded-l-[14px] px-3 py-2 text-muted-foreground text-xs";
+      return "rounded-l-[16px] px-3 py-2 text-muted-foreground text-xs";
     case "amount":
       return "px-3 py-2 font-medium text-xs";
     case "status":
       return "px-3 py-2";
     case "actions":
-      return "rounded-r-[14px] px-3 py-2";
+      return "rounded-r-[16px] px-3 py-2";
     default:
       return "px-3 py-2";
   }
