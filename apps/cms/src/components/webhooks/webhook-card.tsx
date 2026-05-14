@@ -1,5 +1,14 @@
 "use client";
 
+import {
+  Copy01Icon,
+  Delete02Icon,
+  Loading03Icon,
+  MailSend01Icon,
+  MoreVerticalIcon,
+  PencilEdit02Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import {
@@ -15,14 +24,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import {
-  CopyIcon,
-  DotsThreeVerticalIcon,
-  PaperPlaneTiltIcon,
-  PencilIcon,
-  SpinnerIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
 import { format } from "date-fns";
 import dynamic from "next/dynamic";
 import { useState } from "react";
@@ -106,17 +107,20 @@ export function WebhookCard({
                 render={
                   <Button className="size-8 p-0" variant="ghost">
                     <span className="sr-only">Open menu</span>
-                    <DotsThreeVerticalIcon className="size-6 text-muted-foreground" />
+                    <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
                   </Button>
                 }
               />
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent
+                align="end"
+                className="text-muted-foreground shadow-sm"
+              >
                 {webhook.format === "json" ? (
                   <DropdownMenuItem
                     onClick={() => handleCopySecret(webhook.secret)}
                   >
-                    <CopyIcon className="mr-1.5 size-4" />
-                    Copy Secret
+                    <HugeiconsIcon icon={Copy01Icon} size={16} />
+                    <span>Copy Secret</span>
                   </DropdownMenuItem>
                 ) : undefined}
                 <DropdownMenuItem
@@ -124,26 +128,30 @@ export function WebhookCard({
                   onClick={handleSendTest}
                 >
                   {isSendingTest ? (
-                    <SpinnerIcon className="mr-1.5 size-4 animate-spin" />
+                    <HugeiconsIcon
+                      className="animate-spin"
+                      icon={Loading03Icon}
+                      size={16}
+                    />
                   ) : (
-                    <PaperPlaneTiltIcon className="mr-1.5 size-4" />
+                    <HugeiconsIcon icon={MailSend01Icon} size={16} />
                   )}
-                  Send Test
+                  <span>Send Test</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   disabled={isToggling}
                   onClick={() => setIsEditOpen(true)}
                 >
-                  <PencilIcon className="mr-1.5 size-4" />
-                  Edit
+                  <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
+                  <span>Edit</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   disabled={isToggling}
                   onClick={() => setIsDeleteOpen(true)}
                   variant="destructive"
                 >
-                  <TrashIcon className="mr-1.5 size-4 text-inherit" />
-                  Delete
+                  <HugeiconsIcon icon={Delete02Icon} size={16} />
+                  <span>Delete</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
