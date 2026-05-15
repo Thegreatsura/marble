@@ -56,7 +56,11 @@ export function AnalysisTab({
     () => ""
   );
 
-  const textMetrics = useReadability({ editor, text: editorText });
+  const textMetrics = useReadability({
+    aiEnabled: false,
+    editor,
+    text: editorText,
+  });
 
   return (
     <HiddenScrollbar className="h-full px-6">

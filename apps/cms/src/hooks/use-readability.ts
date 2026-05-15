@@ -16,6 +16,7 @@ import {
 interface UseReadabilityParams {
   editor: Editor | null;
   text: string;
+  aiEnabled?: boolean;
 }
 
 type ReadabilityLevel = ReturnType<typeof getReadabilityLevel>;
@@ -116,9 +117,9 @@ function buildContentKey(input: string): string {
 export function useReadability({
   editor,
   text,
+  aiEnabled = true,
 }: UseReadabilityParams): ReadabilityResult {
   const { activeWorkspace } = useWorkspace();
-  const aiEnabled = true;
   const debounceMs = aiEnabled ? 1500 : 500;
 
   const debouncedText = useDebounce(text, debounceMs);
