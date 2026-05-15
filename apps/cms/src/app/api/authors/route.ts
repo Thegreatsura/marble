@@ -1,24 +1,20 @@
 import { db } from "@marble/db";
 import { toAuthorPayload } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { getWorkspacePlan } from "@/lib/plans";
 import { authorSchema } from "@/lib/validations/authors";
 
 export async function GET() {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData?.user || !sessionData?.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const workspaceId = sessionData.session.activeOrganizationId;
-
-  if (!workspaceId) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { workspaceId } = accessData;
 
   try {
     const authors = await db.author.findMany({
@@ -62,12 +58,13 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData?.user || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   try {
     // Check plan limits for author creation (only hobby plan is limited to 1 author)

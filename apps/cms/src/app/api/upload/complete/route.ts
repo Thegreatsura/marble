@@ -1,7 +1,7 @@
 import { db } from "@marble/db";
 import { toMediaPayload } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { R2_PUBLIC_URL } from "@/lib/r2";
 import { completeSchema } from "@/lib/validations/upload";
@@ -9,13 +9,13 @@ import { getMediaType } from "@/utils/media";
 import { trackMediaUpload } from "@/utils/usage/media";
 
 export async function POST(request: Request) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const workspaceId = sessionData.session.activeOrganizationId;
+  const { sessionData, workspaceId } = accessData;
   const body = await request.json();
   const parsedBody = completeSchema.safeParse(body);
 

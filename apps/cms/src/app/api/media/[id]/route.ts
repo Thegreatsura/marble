@@ -1,7 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 
 const updateMediaSchema = z.object({
   name: z.string().trim().min(1).max(255),
@@ -12,12 +12,13 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const { id } = await params;
   if (!id) {
@@ -65,12 +66,13 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const { id } = await params;
   if (!id) {

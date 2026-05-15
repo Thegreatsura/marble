@@ -1,6 +1,6 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {
   customFieldsPayloadSchema,
   resolveCustomFieldValues,
@@ -11,18 +11,19 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user || !session.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
+  const { workspaceId } = accessData;
   const { id: postId } = await params;
 
   const post = await db.post.findFirst({
     where: {
       id: postId,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId,
     },
     select: { id: true },
   });
@@ -34,7 +35,7 @@ export async function GET(
   // Fetch workspace custom field definitions and this post's values
   const [fields, values] = await Promise.all([
     db.field.findMany({
-      where: { workspaceId: session.session.activeOrganizationId },
+      where: { workspaceId },
       include: {
         options: {
           orderBy: [{ position: "asc" }, { createdAt: "asc" }],
@@ -45,7 +46,7 @@ export async function GET(
     db.fieldValue.findMany({
       where: {
         postId,
-        workspaceId: session.session.activeOrganizationId,
+        workspaceId,
       },
     }),
   ]);
@@ -63,18 +64,19 @@ export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user || !session.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
+  const { workspaceId } = accessData;
   const { id: postId } = await params;
 
   const post = await db.post.findFirst({
     where: {
       id: postId,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId,
     },
     select: { id: true },
   });
@@ -85,7 +87,6 @@ export async function PUT(
 
   const requestJson = await req.json();
   const payload = customFieldsPayloadSchema.safeParse(requestJson);
-  const workspaceId = session.session.activeOrganizationId;
 
   if (!payload.success) {
     return NextResponse.json(

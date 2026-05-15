@@ -1,18 +1,19 @@
 import { db } from "@marble/db";
 import { toTagPayload } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { tagSchema } from "@/lib/validations/workspace";
 
 export async function GET() {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const tags = await db.tag.findMany({
     where: { workspaceId },
@@ -41,12 +42,13 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   const json = await req.json();
   const body = tagSchema.parse(json);

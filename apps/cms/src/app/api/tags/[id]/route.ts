@@ -1,7 +1,7 @@
 import { db } from "@marble/db";
 import { toTagPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { tagSchema } from "@/lib/validations/workspace";
@@ -10,12 +10,13 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   const { id } = await params;
 
@@ -72,11 +73,13 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const accessData = await requireActiveWorkspaceAccess();
+
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   const { id } = await params;
 

@@ -1,22 +1,18 @@
 import { getDemoPostPublishedPayload } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 
 export async function POST(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const workspaceId = session.session.activeOrganizationId;
-
-  if (!workspaceId) {
-    return NextResponse.json({ error: "No active workspace" }, { status: 400 });
-  }
+  const { sessionData, workspaceId } = accessData;
 
   const apiUrl = process.env.MARBLE_API_URL;
   const systemSecret = process.env.SYSTEM_SECRET;
@@ -45,7 +41,7 @@ export async function POST(
         resourceType: "post",
         resourceId: "test",
         actorType: "user",
-        actorId: session.user.id,
+        actorId: sessionData.user.id,
         payload: getDemoPostPublishedPayload(),
         isTest: true,
         targetWebhookEndpointId: id,

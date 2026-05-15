@@ -3,7 +3,7 @@ import { db } from "@marble/db";
 import { toMediaPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { loadMediaApiFilters } from "@/lib/search-params";
@@ -11,20 +11,13 @@ import { DeleteSchema } from "@/lib/validations/upload";
 import { splitMediaSort } from "@/utils/media";
 
 export async function GET(request: Request) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const orgId = sessionData.session?.activeOrganizationId;
-
-  if (!orgId) {
-    return NextResponse.json(
-      { error: "Active workspace not found in session" },
-      { status: 400 }
-    );
-  }
+  const { workspaceId } = accessData;
 
   const filters = loadMediaApiFilters(request, { strict: true });
   if (!z.number().int().min(1).safeParse(filters.page).success) {
@@ -38,7 +31,7 @@ export async function GET(request: Request) {
 
   try {
     const where = {
-      workspaceId: orgId,
+      workspaceId,
       ...(type && { type }),
       ...(search?.trim() && {
         name: {
@@ -73,7 +66,7 @@ export async function GET(request: Request) {
         },
       }),
       db.media.count({ where }),
-      hasFilters ? db.media.count({ where: { workspaceId: orgId } }) : null,
+      hasFilters ? db.media.count({ where: { workspaceId } }) : null,
     ]);
     const hasAnyMedia =
       workspaceMediaCount === null ? totalCount > 0 : workspaceMediaCount > 0;
@@ -95,13 +88,13 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const workspaceId = sessionData.session.activeOrganizationId;
+  const { sessionData, workspaceId } = accessData;
 
   const parsedBody = await request.json();
 

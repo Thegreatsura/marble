@@ -1,7 +1,7 @@
 import { db } from "@marble/db";
 import { toAuthorPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { authorSchema } from "@/lib/validations/authors";
@@ -10,12 +10,13 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData?.user || !sessionData?.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
+  const { sessionData, workspaceId } = accessData;
   const { id } = await params;
 
   if (!id) {
@@ -29,7 +30,7 @@ export async function DELETE(
     const author = await db.author.findFirst({
       where: {
         id,
-        workspaceId: sessionData.session.activeOrganizationId,
+        workspaceId,
       },
       include: {
         socials: true,
@@ -43,17 +44,17 @@ export async function DELETE(
     const deletedAuthor = await db.author.delete({
       where: {
         id,
-        workspaceId: sessionData.session.activeOrganizationId,
+        workspaceId,
       },
     });
 
     // Invalidate cache for authors and posts (authors affect posts)
-    invalidateCache(sessionData.session.activeOrganizationId, "authors");
-    invalidateCache(sessionData.session.activeOrganizationId, "posts");
+    invalidateCache(workspaceId, "authors");
+    invalidateCache(workspaceId, "posts");
 
     await emitDashboardEvent({
       type: "author_deleted",
-      workspaceId: sessionData.session.activeOrganizationId,
+      workspaceId,
       resourceType: "author",
       resourceId: author.id,
       actorId: sessionData.user.id,
@@ -74,13 +75,14 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
   const { id } = await params;
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   try {
     const body = await request.json();

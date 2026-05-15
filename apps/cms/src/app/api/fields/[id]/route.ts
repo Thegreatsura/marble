@@ -1,6 +1,6 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { customFieldUpdateSchema } from "@/lib/validations/fields";
 
 function buildFieldOptionWrites(
@@ -58,15 +58,13 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  if (!session?.session.activeOrganizationId) {
-    return NextResponse.json({ error: "No active workspace" }, { status: 400 });
-  }
+  const { workspaceId } = accessData;
 
   const { id } = await params;
 
@@ -84,7 +82,7 @@ export async function PATCH(
   const existingField = await db.field.findFirst({
     where: {
       id,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId,
     },
     include: {
       options: {
@@ -101,7 +99,7 @@ export async function PATCH(
   if (body.data.key && body.data.key !== existingField.key) {
     const keyConflict = await db.field.findFirst({
       where: {
-        workspaceId: session.session.activeOrganizationId,
+        workspaceId,
         key: body.data.key,
         id: { not: id },
       },
@@ -164,7 +162,7 @@ export async function PATCH(
     const fieldValueCount = await db.fieldValue.count({
       where: {
         fieldId: id,
-        workspaceId: session.session.activeOrganizationId,
+        workspaceId,
       },
     });
 
@@ -184,7 +182,7 @@ export async function PATCH(
       where: {
         id_workspaceId: {
           id,
-          workspaceId: session.session.activeOrganizationId,
+          workspaceId,
         },
       },
       data: {
@@ -223,22 +221,20 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  if (!session?.session.activeOrganizationId) {
-    return NextResponse.json({ error: "No active workspace" }, { status: 400 });
-  }
+  const { workspaceId } = accessData;
 
   const { id } = await params;
 
   const existingField = await db.field.findFirst({
     where: {
       id,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId,
     },
   });
 
@@ -250,7 +246,7 @@ export async function DELETE(
     where: {
       id_workspaceId: {
         id,
-        workspaceId: session.session.activeOrganizationId,
+        workspaceId,
       },
     },
   });
