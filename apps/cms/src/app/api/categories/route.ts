@@ -6,64 +6,63 @@ import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
 
-export async function GET() {
-  const { workspaceId } = await requireActiveWorkspaceAccess().catch((error) => {}
-  try {
+function handleWorkspaceAccessError(error: unknown) {
+  if (error instanceof Error && error.message === "Not authenticated") {
+    return NextResponse.json({ error: error.message }, { status: 401 });
+  }
+  if (
+    error instanceof Error &&
+    error.message === "You no longer have access to this workspace"
+  ) {
+    return NextResponse.json({ error: error.message }, { status: 403 });
+  }
+  throw error;
+}
 
-    const categories = await db.category.findMany({
-      where: { workspaceId },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        _count: {
-          select: {
-            posts: true,
-          },
+export async function GET() {
+  const workspaceAccess = await requireActiveWorkspaceAccess().catch(
+    handleWorkspaceAccessError
+  );
+
+  if (workspaceAccess instanceof NextResponse) {
+    return workspaceAccess;
+  }
+
+  const { workspaceId } = workspaceAccess;
+
+  const categories = await db.category.findMany({
+    where: { workspaceId },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      _count: {
+        select: {
+          posts: true,
         },
       },
-    });
+    },
+  });
 
-    const transformedCategories = categories.map((category) => {
-      const { _count, ...rest } = category;
-      return {
-        ...rest,
-        postsCount: _count.posts,
-      };
-    });
+  const transformedCategories = categories.map((category) => {
+    const { _count, ...rest } = category;
+    return {
+      ...rest,
+      postsCount: _count.posts,
+    };
+  });
 
-    return NextResponse.json(transformedCategories, { status: 200 });
-  } catch (error) {
-    if (error instanceof Error && error.message === "Not authenticated") {
-      return NextResponse.json({ error: error.message }, { status: 401 });
-    }
-    if (
-      error instanceof Error &&
-      error.message === "You no longer have access to this workspace"
-    ) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-    throw error;
-  }
+  return NextResponse.json(transformedCategories, { status: 200 });
 }
 
 export async function POST(req: Request) {
-  let workspaceAccess: Awaited<ReturnType<typeof requireActiveWorkspaceAccess>>;
+  const workspaceAccess = await requireActiveWorkspaceAccess().catch(
+    handleWorkspaceAccessError
+  );
 
-  try {
-    workspaceAccess = await requireActiveWorkspaceAccess();
-  } catch (error) {
-    if (error instanceof Error && error.message === "Not authenticated") {
-      return NextResponse.json({ error: error.message }, { status: 401 });
-    }
-    if (
-      error instanceof Error &&
-      error.message === "You no longer have access to this workspace"
-    ) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-    throw error;
+  if (workspaceAccess instanceof NextResponse) {
+    return workspaceAccess;
   }
 
   const { sessionData, workspaceId } = workspaceAccess;

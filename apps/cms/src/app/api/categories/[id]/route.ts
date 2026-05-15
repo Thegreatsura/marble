@@ -6,25 +6,29 @@ import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
 
+function handleWorkspaceAccessError(error: unknown) {
+  if (error instanceof Error && error.message === "Not authenticated") {
+    return NextResponse.json({ error: error.message }, { status: 401 });
+  }
+  if (
+    error instanceof Error &&
+    error.message === "You no longer have access to this workspace"
+  ) {
+    return NextResponse.json({ error: error.message }, { status: 403 });
+  }
+  throw error;
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  let workspaceAccess: Awaited<ReturnType<typeof requireActiveWorkspaceAccess>>;
+  const workspaceAccess = await requireActiveWorkspaceAccess().catch(
+    handleWorkspaceAccessError
+  );
 
-  try {
-    workspaceAccess = await requireActiveWorkspaceAccess();
-  } catch (error) {
-    if (error instanceof Error && error.message === "Not authenticated") {
-      return NextResponse.json({ error: error.message }, { status: 401 });
-    }
-    if (
-      error instanceof Error &&
-      error.message === "You no longer have access to this workspace"
-    ) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-    throw error;
+  if (workspaceAccess instanceof NextResponse) {
+    return workspaceAccess;
   }
 
   const { sessionData, workspaceId } = workspaceAccess;
@@ -88,21 +92,12 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  let workspaceAccess: Awaited<ReturnType<typeof requireActiveWorkspaceAccess>>;
+  const workspaceAccess = await requireActiveWorkspaceAccess().catch(
+    handleWorkspaceAccessError
+  );
 
-  try {
-    workspaceAccess = await requireActiveWorkspaceAccess();
-  } catch (error) {
-    if (error instanceof Error && error.message === "Not authenticated") {
-      return NextResponse.json({ error: error.message }, { status: 401 });
-    }
-    if (
-      error instanceof Error &&
-      error.message === "You no longer have access to this workspace"
-    ) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-    throw error;
+  if (workspaceAccess instanceof NextResponse) {
+    return workspaceAccess;
   }
 
   const { sessionData, workspaceId } = workspaceAccess;
