@@ -1,15 +1,22 @@
 import { db } from "@marble/db";
-import { NextResponse } from "next/server";
 import { getServerSession } from "./session";
+
+export class WorkspaceAccessError extends Error {
+  status: 401 | 403;
+
+  constructor(message: string, status: 401 | 403) {
+    super(message);
+    this.name = "WorkspaceAccessError";
+    this.status = status;
+  }
+}
 
 export async function requireActiveWorkspaceAccess() {
   const sessionData = await getServerSession();
   const workspaceId = sessionData?.session.activeOrganizationId;
 
   if (!sessionData || !workspaceId) {
-    return {
-      error: NextResponse.json({ error: "Not authenticated" }, { status: 401 }),
-    } as const;
+    throw new WorkspaceAccessError("Not authenticated", 401);
   }
 
   const member = await db.member.findFirst({
@@ -26,12 +33,10 @@ export async function requireActiveWorkspaceAccess() {
   });
 
   if (!member) {
-    return {
-      error: NextResponse.json(
-        { error: "You no longer have access to this workspace" },
-        { status: 403 }
-      ),
-    } as const;
+    throw new WorkspaceAccessError(
+      "You no longer have access to this workspace",
+      403
+    );
   }
 
   return {

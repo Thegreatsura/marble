@@ -1,7 +1,10 @@
 import { db } from "@marble/db";
 import { toCategoryPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
-import { requireActiveWorkspaceAccess } from "@/lib/auth/workspace-access";
+import {
+  requireActiveWorkspaceAccess,
+  WorkspaceAccessError,
+} from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
@@ -10,10 +13,20 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const workspaceAccess = await requireActiveWorkspaceAccess();
-  if ("error" in workspaceAccess) {
-    return workspaceAccess.error;
+  let workspaceAccess: Awaited<ReturnType<typeof requireActiveWorkspaceAccess>>;
+
+  try {
+    workspaceAccess = await requireActiveWorkspaceAccess();
+  } catch (error) {
+    if (error instanceof WorkspaceAccessError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status }
+      );
+    }
+    throw error;
   }
+
   const { sessionData, workspaceId } = workspaceAccess;
 
   const { id } = await params;
@@ -75,10 +88,20 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const workspaceAccess = await requireActiveWorkspaceAccess();
-  if ("error" in workspaceAccess) {
-    return workspaceAccess.error;
+  let workspaceAccess: Awaited<ReturnType<typeof requireActiveWorkspaceAccess>>;
+
+  try {
+    workspaceAccess = await requireActiveWorkspaceAccess();
+  } catch (error) {
+    if (error instanceof WorkspaceAccessError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status }
+      );
+    }
+    throw error;
   }
+
   const { sessionData, workspaceId } = workspaceAccess;
 
   const { id } = await params;

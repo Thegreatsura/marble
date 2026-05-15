@@ -1,49 +1,68 @@
 import { db } from "@marble/db";
 import { toCategoryPayload } from "@marble/events";
 import { NextResponse } from "next/server";
-import { requireActiveWorkspaceAccess } from "@/lib/auth/workspace-access";
+import {
+  requireActiveWorkspaceAccess,
+  WorkspaceAccessError,
+} from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
 
 export async function GET() {
-  const workspaceAccess = await requireActiveWorkspaceAccess();
-  if ("error" in workspaceAccess) {
-    return workspaceAccess.error;
-  }
-  const { workspaceId } = workspaceAccess;
+  try {
+    const { workspaceId } = await requireActiveWorkspaceAccess();
 
-  const categories = await db.category.findMany({
-    where: { workspaceId },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      _count: {
-        select: {
-          posts: true,
+    const categories = await db.category.findMany({
+      where: { workspaceId },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        _count: {
+          select: {
+            posts: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  const transformedCategories = categories.map((category) => {
-    const { _count, ...rest } = category;
-    return {
-      ...rest,
-      postsCount: _count.posts,
-    };
-  });
+    const transformedCategories = categories.map((category) => {
+      const { _count, ...rest } = category;
+      return {
+        ...rest,
+        postsCount: _count.posts,
+      };
+    });
 
-  return NextResponse.json(transformedCategories, { status: 200 });
+    return NextResponse.json(transformedCategories, { status: 200 });
+  } catch (error) {
+    if (error instanceof WorkspaceAccessError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status }
+      );
+    }
+    throw error;
+  }
 }
 
 export async function POST(req: Request) {
-  const workspaceAccess = await requireActiveWorkspaceAccess();
-  if ("error" in workspaceAccess) {
-    return workspaceAccess.error;
+  let workspaceAccess: Awaited<ReturnType<typeof requireActiveWorkspaceAccess>>;
+
+  try {
+    workspaceAccess = await requireActiveWorkspaceAccess();
+  } catch (error) {
+    if (error instanceof WorkspaceAccessError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status }
+      );
+    }
+    throw error;
   }
+
   const { sessionData, workspaceId } = workspaceAccess;
 
   const json = await req.json();
