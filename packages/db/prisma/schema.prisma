@@ -39,6 +39,7 @@ model Subscription {
   amount             Int                           @default(20)
   currency           String                        @default("USD")
   discountId         String?
+  lastPolarEventAt   DateTime?
   recurringInterval  SubscriptionRecurringInterval @default(month)
   user               User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
   workspace          Organization                  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
