@@ -1,23 +1,13 @@
 import { db } from "@marble/db";
 import { toCategoryPayload } from "@marble/events";
 import { NextResponse } from "next/server";
-import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
+import {
+  handleWorkspaceAccessError,
+  requireActiveWorkspaceAccess,
+} from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
-
-function handleWorkspaceAccessError(error: unknown) {
-  if (error instanceof Error && error.message === "Not authenticated") {
-    return NextResponse.json({ error: error.message }, { status: 401 });
-  }
-  if (
-    error instanceof Error &&
-    error.message === "You no longer have access to this workspace"
-  ) {
-    return NextResponse.json({ error: error.message }, { status: 403 });
-  }
-  throw error;
-}
 
 export async function GET() {
   const workspaceAccess = await requireActiveWorkspaceAccess().catch(
