@@ -31,18 +31,25 @@ export function ResetForm({ callbackUrl, token }: ResetFormProps) {
 
     setIsLoading(true);
     try {
-      await authClient.resetPassword({
+      const { error } = await authClient.resetPassword({
         token,
         newPassword: password,
       });
+
+      if (error) {
+        throw new Error(error.message);
+      }
 
       toast.success("Password has been reset");
       router.push(callbackUrl);
     } catch (error) {
       console.error("Password reset failed:", error);
-      toast.error("Password reset failed");
+      toast.error(
+        error instanceof Error ? error.message : "Password reset failed"
+      );
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
