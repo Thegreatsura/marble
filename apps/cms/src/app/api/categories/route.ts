@@ -1,18 +1,17 @@
 import { db } from "@marble/db";
 import { toCategoryPayload } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/workspace-access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
 
 export async function GET() {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
-
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const workspaceAccess = await requireActiveWorkspaceAccess();
+  if ("error" in workspaceAccess) {
+    return workspaceAccess.error;
   }
+  const { workspaceId } = workspaceAccess;
 
   const categories = await db.category.findMany({
     where: { workspaceId },
@@ -41,12 +40,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
-
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const workspaceAccess = await requireActiveWorkspaceAccess();
+  if ("error" in workspaceAccess) {
+    return workspaceAccess.error;
   }
+  const { sessionData, workspaceId } = workspaceAccess;
 
   const json = await req.json();
   const body = categorySchema.safeParse(json);
