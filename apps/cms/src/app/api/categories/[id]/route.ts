@@ -1,10 +1,7 @@
 import { db } from "@marble/db";
 import { toCategoryPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
-import {
-  handleWorkspaceAccessError,
-  requireActiveWorkspaceAccess,
-} from "@/lib/auth/access";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
@@ -13,15 +10,13 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const workspaceAccess = await requireActiveWorkspaceAccess().catch(
-    handleWorkspaceAccessError
-  );
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (workspaceAccess instanceof NextResponse) {
-    return workspaceAccess;
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const { sessionData, workspaceId } = workspaceAccess;
+  const { sessionData, workspaceId } = accessData;
 
   const { id } = await params;
 
@@ -82,15 +77,13 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const workspaceAccess = await requireActiveWorkspaceAccess().catch(
-    handleWorkspaceAccessError
-  );
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (workspaceAccess instanceof NextResponse) {
-    return workspaceAccess;
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const { sessionData, workspaceId } = workspaceAccess;
+  const { sessionData, workspaceId } = accessData;
 
   const { id } = await params;
 

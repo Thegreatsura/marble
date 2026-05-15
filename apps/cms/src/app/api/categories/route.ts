@@ -1,24 +1,19 @@
 import { db } from "@marble/db";
 import { toCategoryPayload } from "@marble/events";
 import { NextResponse } from "next/server";
-import {
-  handleWorkspaceAccessError,
-  requireActiveWorkspaceAccess,
-} from "@/lib/auth/access";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
 
 export async function GET() {
-  const workspaceAccess = await requireActiveWorkspaceAccess().catch(
-    handleWorkspaceAccessError
-  );
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (workspaceAccess instanceof NextResponse) {
-    return workspaceAccess;
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const { workspaceId } = workspaceAccess;
+  const { workspaceId } = accessData;
 
   const categories = await db.category.findMany({
     where: { workspaceId },
@@ -47,15 +42,13 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const workspaceAccess = await requireActiveWorkspaceAccess().catch(
-    handleWorkspaceAccessError
-  );
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (workspaceAccess instanceof NextResponse) {
-    return workspaceAccess;
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const { sessionData, workspaceId } = workspaceAccess;
+  const { sessionData, workspaceId } = accessData;
 
   const json = await req.json();
   const body = categorySchema.safeParse(json);
