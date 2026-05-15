@@ -16,9 +16,9 @@ import {
   XIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { useWorkspace } from "@/providers/workspace";
 
 interface Invite {
   id: string;
@@ -34,8 +34,8 @@ interface InviteSectionProps {
 }
 
 export function InviteSection({ invitations }: InviteSectionProps) {
-  const { activeWorkspace } = useWorkspace();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const pendingInvitations = invitations.filter(
     (invitation) => invitation.status === "pending"
@@ -72,14 +72,10 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         id: "resend-invitation",
       });
 
-      if (activeWorkspace?.id && activeWorkspace?.slug) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace.id),
-        });
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE_BY_SLUG(activeWorkspace.slug),
-        });
-      }
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+      });
+      router.refresh();
     },
     onError: (error, _variables) => {
       toast.error(
@@ -113,14 +109,10 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         id: "cancel-invitation",
       });
 
-      if (activeWorkspace?.id && activeWorkspace?.slug) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace.id),
-        });
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE_BY_SLUG(activeWorkspace.slug),
-        });
-      }
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+      });
+      router.refresh();
     },
     onError: (error, _variables) => {
       toast.error(

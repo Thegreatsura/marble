@@ -26,12 +26,12 @@ import {
 } from "@marble/ui/components/select";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type InviteData, inviteSchema } from "@/lib/validations/auth";
-import { useWorkspace } from "@/providers/workspace";
 import { AsyncButton } from "../ui/async-button";
 
 export const InviteModal = ({
@@ -41,8 +41,8 @@ export const InviteModal = ({
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const { activeWorkspace } = useWorkspace();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const {
     register,
@@ -74,14 +74,10 @@ export const InviteModal = ({
       toast.success("Invitation sent successfully");
       setOpen(false);
       reset();
-      if (activeWorkspace?.id && activeWorkspace?.slug) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace.id),
-        });
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE_BY_SLUG(activeWorkspace.slug),
-        });
-      }
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+      });
+      router.refresh();
     },
     onError: (error) => {
       toast.error(
