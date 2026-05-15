@@ -1,10 +1,7 @@
 import { db } from "@marble/db";
 import { toCategoryPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
-import {
-  requireActiveWorkspaceAccess,
-  WorkspaceAccessError,
-} from "@/lib/auth/access";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
@@ -18,11 +15,14 @@ export async function PATCH(
   try {
     workspaceAccess = await requireActiveWorkspaceAccess();
   } catch (error) {
-    if (error instanceof WorkspaceAccessError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status }
-      );
+    if (error instanceof Error && error.message === "Not authenticated") {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+    if (
+      error instanceof Error &&
+      error.message === "You no longer have access to this workspace"
+    ) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
     }
     throw error;
   }
@@ -93,11 +93,14 @@ export async function DELETE(
   try {
     workspaceAccess = await requireActiveWorkspaceAccess();
   } catch (error) {
-    if (error instanceof WorkspaceAccessError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status }
-      );
+    if (error instanceof Error && error.message === "Not authenticated") {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+    if (
+      error instanceof Error &&
+      error.message === "You no longer have access to this workspace"
+    ) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
     }
     throw error;
   }
