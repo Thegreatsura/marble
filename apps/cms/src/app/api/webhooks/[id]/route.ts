@@ -4,6 +4,7 @@ import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {
   type PayloadFormat,
   type WebhookEvent,
+  webhookSchema,
   webhookUpdateSchema,
 } from "@/lib/validations/webhook";
 
@@ -40,6 +41,23 @@ export async function PATCH(
 
   if (!existingWebhook) {
     return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
+  }
+
+  const effectiveWebhook = webhookSchema.safeParse({
+    name: body.data.name ?? existingWebhook.name,
+    endpoint: body.data.endpoint ?? existingWebhook.url,
+    events: body.data.events ?? existingWebhook.events,
+    format: body.data.format ?? existingWebhook.format,
+  });
+
+  if (!effectiveWebhook.success) {
+    return NextResponse.json(
+      {
+        error: "Invalid request body",
+        details: effectiveWebhook.error.issues,
+      },
+      { status: 400 }
+    );
   }
 
   const updateData: {
