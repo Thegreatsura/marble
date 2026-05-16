@@ -1,6 +1,5 @@
 import { createMcpHandler } from "agents/mcp";
 import { Hono } from "hono";
-import { validateApiKey } from "@/lib/api";
 import { getApiKey } from "@/lib/auth";
 import { DEFAULT_API_BASE_URL } from "@/lib/constants";
 import { createServer } from "@/server";
@@ -26,22 +25,6 @@ mcpRoute.all("/", async (c) => {
   }
 
   const apiBaseUrl = c.env.MARBLE_API_BASE_URL ?? DEFAULT_API_BASE_URL;
-
-  try {
-    await validateApiKey(apiBaseUrl, apiKey);
-  } catch (error) {
-    return c.json(
-      {
-        error: "Unauthorized",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Missing or invalid Marble API key.",
-      },
-      401
-    );
-  }
-
   const server = createServer(apiBaseUrl, apiKey);
   const handler = createMcpHandler(server, { route: "/mcp" });
 

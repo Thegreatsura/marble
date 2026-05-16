@@ -4,6 +4,7 @@ import {
   deleteJsonApi,
   readJsonApi,
   uploadMediaApi,
+  validateApiKey,
   writeJsonApi,
 } from "@/lib/api";
 import { toolResult } from "@/lib/mcp";
@@ -93,6 +94,7 @@ export function registerMediaTools(
     },
     async ({ url, filename }) => {
       assertPrivateApiKey(apiKey);
+      await validateApiKey(apiBaseUrl, apiKey);
 
       const blob = await fetchRemoteMedia(url);
       return toolResult(
