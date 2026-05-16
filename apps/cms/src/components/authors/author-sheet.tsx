@@ -29,7 +29,7 @@ import {
   XIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -53,51 +53,23 @@ interface AuthorSheetProps {
   onAuthorCreated?: (author: Author) => void;
 }
 
-const EMPTY_AUTHOR: Partial<Author> = {
-  name: "",
-  slug: "",
-  role: "",
-  bio: "",
-  email: "",
-  image: null,
-  userId: null,
-  socials: [],
-};
-
-function getAuthorFormDefaults(
-  authorData: Partial<Author>
-): CreateAuthorValues {
-  return {
-    name: authorData.name || "",
-    slug: authorData.slug || "",
-    role: authorData.role || "",
-    bio: authorData.bio || "",
-    email: authorData.email || "",
-    image: authorData.image || null,
-    userId: authorData.userId || null,
-    socials:
-      authorData.socials && authorData.socials.length > 0
-        ? authorData.socials.map((social) => ({
-            id: social.id,
-            url: social.url,
-            platform: social.platform,
-          }))
-        : [],
-  };
-}
-
 export const AuthorSheet = ({
   open,
   setOpen,
   mode = "create",
-  authorData = EMPTY_AUTHOR,
+  authorData = {
+    name: "",
+    slug: "",
+    role: "",
+    bio: "",
+    email: "",
+    image: null,
+    userId: null,
+    socials: [],
+  },
   onAuthorCreated,
 }: AuthorSheetProps) => {
   const queryClient = useQueryClient();
-  const defaultValues = useMemo(
-    () => getAuthorFormDefaults(authorData),
-    [authorData]
-  );
 
   const {
     register,
@@ -109,7 +81,23 @@ export const AuthorSheet = ({
     formState: { errors, isSubmitting, isDirty },
   } = useForm<CreateAuthorValues>({
     resolver: zodResolver(authorSchema),
-    defaultValues,
+    defaultValues: {
+      name: authorData.name || "",
+      slug: authorData.slug || "",
+      role: authorData.role || "",
+      bio: authorData.bio || "",
+      email: authorData.email || "",
+      image: authorData.image || null,
+      userId: authorData.userId || null,
+      socials:
+        authorData.socials && authorData.socials.length > 0
+          ? authorData.socials.map((social) => ({
+              id: social.id,
+              url: social.url,
+              platform: social.platform,
+            }))
+          : [],
+    },
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -123,15 +111,10 @@ export const AuthorSheet = ({
   const [pendingAvatarUrl, setPendingAvatarUrl] = useState<string | null>(null);
   const avatarUrl = pendingAvatarUrl ?? authorData.image ?? null;
 
-  const resetFormState = () => {
+  const resetAuthorForm = () => {
     setPendingAvatarUrl(null);
-    reset(defaultValues);
+    reset();
   };
-
-  useEffect(() => {
-    setPendingAvatarUrl(null);
-    reset(defaultValues);
-  }, [defaultValues, reset]);
 
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
     mutationFn: (file: File) => uploadFile({ file, type: "avatar" }),
@@ -162,7 +145,6 @@ export const AuthorSheet = ({
     },
     onSuccess: (data) => {
       setOpen(false);
-      setPendingAvatarUrl(null);
       toast.success("Author created successfully");
       if (workspaceId) {
         queryClient.invalidateQueries({
@@ -172,7 +154,7 @@ export const AuthorSheet = ({
       if (onAuthorCreated) {
         onAuthorCreated(data);
       }
-      reset(defaultValues);
+      resetAuthorForm();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -195,14 +177,13 @@ export const AuthorSheet = ({
     },
     onSuccess: () => {
       setOpen(false);
-      setPendingAvatarUrl(null);
       toast.success("Author updated successfully");
       if (workspaceId) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.AUTHORS(workspaceId),
         });
       }
-      reset(defaultValues);
+      resetAuthorForm();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -242,7 +223,7 @@ export const AuthorSheet = ({
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
         if (!nextOpen) {
-          resetFormState();
+          resetAuthorForm();
         }
       }}
       open={open}
